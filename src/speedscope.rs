@@ -301,6 +301,7 @@ mod tests {
             owns_gil: false,
             frames: vec![frame],
             process_info: None,
+            context_id: None,
         };
 
         stats.record(&trace).unwrap();

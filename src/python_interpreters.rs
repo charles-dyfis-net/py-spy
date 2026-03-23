@@ -44,6 +44,10 @@ pub trait ThreadState: Copy {
     fn thread_id(&self) -> u64;
     fn native_thread_id(&self) -> Option<u64>;
     fn next(&self) -> *mut Self;
+    /// The address of the current PyContext on this thread (Python 3.7+).
+    /// Each asyncio Task runs in its own context, so this serves as a
+    /// task identity proxy for async profiling.
+    fn context_id(&self) -> Option<usize> { None }
 }
 
 pub trait FrameObject: Copy {
@@ -457,6 +461,10 @@ impl ThreadState for v3_13_0::PyThreadState {
     fn interp(&self) -> *mut Self::InterpreterState {
         self.interp
     }
+    fn context_id(&self) -> Option<usize> {
+        let addr = self.context as usize;
+        if addr != 0 { Some(addr) } else { None }
+    }
 }
 
 impl FrameObject for v3_13_0::_PyInterpreterFrame {
@@ -544,6 +552,10 @@ impl ThreadState for v3_12_0::PyThreadState {
     }
     fn interp(&self) -> *mut Self::InterpreterState {
         self.interp
+    }
+    fn context_id(&self) -> Option<usize> {
+        let addr = self.context as usize;
+        if addr != 0 { Some(addr) } else { None }
     }
 }
 
@@ -634,6 +646,10 @@ impl ThreadState for v3_11_0::PyThreadState {
     }
     fn interp(&self) -> *mut Self::InterpreterState {
         self.interp
+    }
+    fn context_id(&self) -> Option<usize> {
+        let addr = self.context as usize;
+        if addr != 0 { Some(addr) } else { None }
     }
 }
 

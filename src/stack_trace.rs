@@ -30,6 +30,9 @@ pub struct StackTrace {
     pub frames: Vec<Frame>,
     /// process commandline / parent process info
     pub process_info: Option<Arc<ProcessInfo>>,
+    /// Address of the current PyContext (Python 3.7+). Each asyncio Task
+    /// runs in its own context, so this serves as a task identity proxy.
+    pub context_id: Option<usize>,
 }
 
 /// Information about a single function call in a stack trace
@@ -231,6 +234,7 @@ where
         active: true,
         os_thread_id: thread.native_thread_id(),
         process_info: None,
+        context_id: thread.context_id(),
     })
 }
 
